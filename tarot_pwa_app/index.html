@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>タロット記録</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6b3fa0">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      --bg: #f6f1ea;
+      --card: #fffaf3;
+      --text: #2d2520;
+      --muted: #76685f;
+      --line: #dfd1c3;
+      --accent: #6b3fa0;
+      --accent-dark: #4f2c7d;
+      --danger: #a43d3d;
+      --success: #317a4b;
+      --shadow: 0 10px 28px rgba(55, 37, 25, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #efe1f7 0, var(--bg) 44%, #f7efe5 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 28px 18px 14px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.9rem;
+      letter-spacing: .04em;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    main {
+      width: min(960px, 100%);
+      margin: 0 auto;
+      padding: 12px 14px 40px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: rgba(255, 250, 243, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 12px 0 6px;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(107, 63, 160, .12);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card-row {
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #fffdf8;
+    }
+
+    .card-row-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--accent-dark);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .primary:hover { background: var(--accent-dark); }
+
+    .secondary {
+      background: #eadfeb;
+      color: var(--accent-dark);
+    }
+
+    .danger {
+      background: #f3dfdf;
+      color: var(--danger);
+    }
+
+    .success {
+      background: #dff0e5;
+      color: var(--success);
+    }
+
+    .edit-status {
+      display: none;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f2eaf6;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .edit-status.active { display: block; }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .record {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-top: 12px;
+      background: white;
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .record-title {
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    .record-meta {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: 2px;
+    }
+
+    .cards {
+      margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #f2eaf6;
+      color: var(--accent-dark);
+      padding: 5px 10px;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+
+    .note {
+      white-space: pre-wrap;
+      color: #3b312b;
+      margin-top: 8px;
+    }
+
+    .record button {
+      padding: 7px 10px;
+      font-size: .85rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    @media (max-width: 680px) {
+      header h1 { font-size: 1.55rem; }
+      main { padding-inline: 10px; }
+      .panel { padding: 15px; border-radius: 18px; }
+      .grid, .toolbar, .backup-actions { grid-template-columns: 1fr; }
+      .record-header { flex-direction: column; }
+      .actions button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>タロット記録</h1>
+    <p>カード・正位置/逆位置・解釈メモを残せるシンプルな記録アプリ</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2 id="formTitle">新しい記録</h2>
+      <div id="editStatus" class="edit-status">編集中です。保存するとこの記録が上書きされます。</div>
+
+      <div class="grid">
+        <div>
+          <label for="date">日付</label>
+          <input id="date" type="date" />
+        </div>
+        <div>
+          <label for="spread">スプレッド</label>
+          <select id="spread">
+            <option value="1">1枚引き</option>
+            <option value="3">3枚引き</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="theme">質問・テーマ</label>
+      <input id="theme" type="text" placeholder="例：今日の仕事運、今の悩みについて" />
+
+      <div id="cardInputs"></div>
+
+      <label for="memo">解釈メモ</label>
+      <textarea id="memo" placeholder="カードから感じたこと、自分なりの読み、気づいたことなど"></textarea>
+
+      <label for="result">後日の振り返り</label>
+      <textarea id="result" placeholder="実際どうなったか、当たっていた点、次回に活かしたいことなど"></textarea>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn">保存する</button>
+        <button class="secondary" id="clearFormBtn" type="button">入力をクリア</button>
+        <button class="secondary" id="cancelEditBtn" type="button" style="display:none;">編集をキャンセル</button>
+      </div>
+    </section>
+
+
+    <section class="panel">
+      <h2>バックアップ</h2>
+      <p class="backup-help">JSONは完全バックアップ・復元用、CSVは表計算ソフトで見返すための出力用です。PWAとして公開した場合はホーム画面に追加して使えます。</p>
+      <div class="backup-actions">
+        <button class="primary" id="exportJsonBtn" type="button">JSONバックアップ</button>
+        <label class="import-label">
+          JSONから復元
+          <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
+        </label>
+        <button class="secondary" id="exportCsvBtn" type="button">CSV出力</button>
+        <button class="secondary" id="installAppBtn" type="button" style="display:none;">ホーム画面に追加</button>
+      </div>
+      <div id="backupStatus" class="status-message"></div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div>
+          <h2>過去の記録</h2>
+          <input id="search" type="search" placeholder="テーマ・カード名・メモで検索" />
+        </div>
+        <button class="danger" id="deleteAllBtn" type="button">全削除</button>
+      </div>
+      <div id="records"></div>
+    </section>
+  </main>
+
+  <template id="cardRowTemplate">
+    <div class="card-row">
+      <div class="card-row-title"></div>
+      <div class="grid">
+        <div>
+          <label>カード</label>
+          <select class="tarot-card"></select>
+        </div>
+        <div>
+          <label>向き</label>
+          <select class="orientation">
+            <option value="正位置">正位置</option>
+            <option value="逆位置">逆位置</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const tarotCards = [
+      "愚者", "魔術師", "女教皇", "女帝", "皇帝", "教皇", "恋人", "戦車", "力", "隠者", "運命の輪", "正義", "吊るされた男", "死神", "節制", "悪魔", "塔", "星", "月", "太陽", "審判", "世界",
+      "ワンドのエース", "ワンドの2", "ワンドの3", "ワンドの4", "ワンドの5", "ワンドの6", "ワンドの7", "ワンドの8", "ワンドの9", "ワンドの10", "ワンドのペイジ", "ワンドのナイト", "ワンドのクイーン", "ワンドのキング",
+      "カップのエース", "カップの2", "カップの3", "カップの4", "カップの5", "カップの6", "カップの7", "カップの8", "カップの9", "カップの10", "カップのペイジ", "カップのナイト", "カップのクイーン", "カップのキング",
+      "ソードのエース", "ソードの2", "ソードの3", "ソードの4", "ソードの5", "ソードの6", "ソードの7", "ソードの8", "ソードの9", "ソードの10", "ソードのペイジ", "ソードのナイト", "ソードのクイーン", "ソードのキング",
+      "ペンタクルのエース", "ペンタクルの2", "ペンタクルの3", "ペンタクルの4", "ペンタクルの5", "ペンタクルの6", "ペンタクルの7", "ペンタクルの8", "ペンタクルの9", "ペンタクルの10", "ペンタクルのペイジ", "ペンタクルのナイト", "ペンタクルのクイーン", "ペンタクルのキング"
+    ];
+
+    const positionsBySpread = {
+      "1": ["カード1"],
+      "3": ["過去・背景", "現在・状況", "未来・助言"]
+    };
+
+    const storageKey = "tarot-records-v1";
+
+    const dateEl = document.getElementById("date");
+    const spreadEl = document.getElementById("spread");
+    const themeEl = document.getElementById("theme");
+    const memoEl = document.getElementById("memo");
+    const resultEl = document.getElementById("result");
+    const cardInputsEl = document.getElementById("cardInputs");
+    const recordsEl = document.getElementById("records");
+    const searchEl = document.getElementById("search");
+    const template = document.getElementById("cardRowTemplate");
+    const formTitleEl = document.getElementById("formTitle");
+    const editStatusEl = document.getElementById("editStatus");
+    const saveBtnEl = document.getElementById("saveBtn");
+    const cancelEditBtnEl = document.getElementById("cancelEditBtn");
+    let editingRecordId = null;
+
+    function todayString() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(storageKey, JSON.stringify(records));
+    }
+
+    function fillCardSelect(select) {
+      tarotCards.forEach(card => {
+        const option = document.createElement("option");
+        option.value = card;
+        option.textContent = card;
+        select.appendChild(option);
+      });
+    }
+
+    function renderCardInputs(selectedCards = []) {
+      cardInputsEl.innerHTML = "";
+      const positions = positionsBySpread[spreadEl.value];
+
+      positions.forEach((position, index) => {
+        const row = template.content.cloneNode(true);
+        row.querySelector(".card-row-title").textContent = position;
+        const cardSelect = row.querySelector(".tarot-card");
+        const orientationSelect = row.querySelector(".orientation");
+        fillCardSelect(cardSelect);
+        cardSelect.dataset.position = position;
+        orientationSelect.dataset.position = position;
+
+        const savedCard = selectedCards[index];
+        if (savedCard) {
+          cardSelect.value = savedCard.card;
+          orientationSelect.value = savedCard.orientation;
+        }
+
+        cardInputsEl.appendChild(row);
+      });
+    }
+
+    function resetForm() {
+      editingRecordId = null;
+      formTitleEl.textContent = "新しい記録";
+      editStatusEl.classList.remove("active");
+      saveBtnEl.textContent = "保存する";
+      cancelEditBtnEl.style.display = "none";
+      dateEl.value = todayString();
+      spreadEl.value = "1";
+      themeEl.value = "";
+      memoEl.value = "";
+      resultEl.value = "";
+      renderCardInputs();
+    }
+
+    function collectCards() {
+      const rows = [...cardInputsEl.querySelectorAll(".card-row")];
+      return rows.map(row => ({
+        position: row.querySelector(".tarot-card").dataset.position,
+        card: row.querySelector(".tarot-card").value,
+        orientation: row.querySelector(".orientation").value
+      }));
+    }
+
+    function saveRecord() {
+      const records = loadRecords();
+      const existing = records.find(record => record.id === editingRecordId);
+      const record = {
+        id: editingRecordId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+        createdAt: existing?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        date: dateEl.value || todayString(),
+        spread: spreadEl.options[spreadEl.selectedIndex].textContent,
+        theme: themeEl.value.trim() || "無題のリーディング",
+        cards: collectCards(),
+        memo: memoEl.value.trim(),
+        result: resultEl.value.trim()
+      };
+
+      if (editingRecordId) {
+        const index = records.findIndex(item => item.id === editingRecordId);
+        if (index >= 0) records[index] = record;
+      } else {
+        records.unshift(record);
+      }
+
+      saveRecords(records);
+      resetForm();
+      renderRecords();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function editRecord(id) {
+      const record = loadRecords().find(item => item.id === id);
+      if (!record) return;
+
+      editingRecordId = id;
+      formTitleEl.textContent = "記録を編集";
+      editStatusEl.classList.add("active");
+      saveBtnEl.textContent = "変更を保存";
+      cancelEditBtnEl.style.display = "inline-flex";
+
+      dateEl.value = record.date || todayString();
+      spreadEl.value = String(record.cards?.length || 1);
+      themeEl.value = record.theme || "";
+      memoEl.value = record.memo || "";
+      resultEl.value = record.result || "";
+      renderCardInputs(record.cards || []);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      resultEl.focus();
+    }
+
+    function deleteRecord(id) {
+      const records = loadRecords().filter(record => record.id !== id);
+      saveRecords(records);
+      renderRecords();
+    }
+
+    function matchesSearch(record, query) {
+      if (!query) return true;
+      const haystack = [
+        record.date,
+        record.spread,
+        record.theme,
+        record.memo,
+        record.result,
+        ...record.cards.flatMap(c => [c.position, c.card, c.orientation])
+      ].join(" ").toLowerCase();
+      return haystack.includes(query.toLowerCase());
+    }
+
+    function renderRecords() {
+      const query = searchEl.value.trim();
+      const records = loadRecords().filter(record => matchesSearch(record, query));
+      recordsEl.innerHTML = "";
+
+      if (records.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = query ? "検索に一致する記録がありません。" : "まだ記録がありません。";
+        recordsEl.appendChild(empty);
+        return;
+      }
+
+      records.forEach(record => {
+        const article = document.createElement("article");
+        article.className = "record";
+
+        const header = document.createElement("div");
+        header.className = "record-header";
+
+        const titleBox = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "record-title";
+        title.textContent = record.theme;
+        const meta = document.createElement("div");
+        meta.className = "record-meta";
+        meta.textContent = `${record.date} / ${record.spread}`;
+        titleBox.append(title, meta);
+
+        const recordActions = document.createElement("div");
+        recordActions.className = "actions";
+        recordActions.style.marginTop = "0";
+
+        const edit = document.createElement("button");
+        edit.className = "success";
+        edit.textContent = "編集";
+        edit.addEventListener("click", () => editRecord(record.id));
+
+        const del = document.createElement("button");
+        del.className = "danger";
+        del.textContent = "削除";
+        del.addEventListener("click", () => {
+          if (confirm("この記録を削除しますか？")) deleteRecord(record.id);
+        });
+
+        recordActions.append(edit, del);
+        header.append(titleBox, recordActions);
+
+        const cards = document.createElement("div");
+        cards.className = "cards";
+        record.cards.forEach(c => {
+          const pill = document.createElement("span");
+          pill.className = "pill";
+          pill.textContent = `${c.position}: ${c.card} / ${c.orientation}`;
+          cards.appendChild(pill);
+        });
+
+        article.append(header, cards);
+
+        if (record.memo) {
+          const memo = document.createElement("div");
+          memo.className = "note";
+          memo.textContent = `解釈メモ\n${record.memo}`;
+          article.appendChild(memo);
+        }
+
+        if (record.result) {
+          const result = document.createElement("div");
+          result.className = "note";
+          result.textContent = `振り返り\n${record.result}`;
+          article.appendChild(result);
+        }
+
+        recordsEl.appendChild(article);
+      });
+    }
+
+
+    const backupStatusEl = document.getElementById("backupStatus");
+    const importJsonInputEl = document.getElementById("importJsonInput");
+    const installAppBtnEl = document.getElementById("installAppBtn");
+    let deferredInstallPrompt = null;
+
+    function showBackupStatus(message, type = "success") {
+      backupStatusEl.textContent = message;
+      backupStatusEl.className = `status-message active ${type}`;
+      window.setTimeout(() => {
+        backupStatusEl.classList.remove("active");
+      }, 5000);
+    }
+
+    function downloadTextFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportJson() {
+      const records = loadRecords();
+      const payload = {
+        app: "tarot-record",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        records
+      };
+      const date = todayString();
+      downloadTextFile(
+        `tarot-records-${date}.json`,
+        JSON.stringify(payload, null, 2),
+        "application/json;charset=utf-8"
+      );
+      showBackupStatus(`JSONバックアップを書き出しました。記録件数: ${records.length}件`);
+    }
+
+    function normalizeImportedRecords(data) {
+      const records = Array.isArray(data) ? data : data?.records;
+      if (!Array.isArray(records)) {
+        throw new Error("records array not found");
+      }
+      return records.map(record => ({
+        id: record.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+        createdAt: record.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        date: record.date || todayString(),
+        spread: record.spread || `${record.cards?.length || 1}枚引き`,
+        theme: record.theme || "無題のリーディング",
+        cards: Array.isArray(record.cards) ? record.cards.map((card, index) => ({
+          position: card.position || `カード${index + 1}`,
+          card: card.card || tarotCards[0],
+          orientation: card.orientation === "逆位置" ? "逆位置" : "正位置"
+        })) : [],
+        memo: record.memo || "",
+        result: record.result || ""
+      }));
+    }
+
+    function importJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = normalizeImportedRecords(JSON.parse(e.target.result));
+          const current = loadRecords();
+          const existingIds = new Set(current.map(record => record.id));
+          const merged = [...current];
+          let added = 0;
+          let updated = 0;
+
+          imported.forEach(record => {
+            const index = merged.findIndex(item => item.id === record.id);
+            if (index >= 0) {
+              merged[index] = record;
+              updated += 1;
+            } else {
+              if (existingIds.has(record.id)) {
+                record.id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+              }
+              merged.push(record);
+              added += 1;
+            }
+          });
+
+          merged.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
+          saveRecords(merged);
+          renderRecords();
+          showBackupStatus(`JSONから復元しました。追加: ${added}件 / 更新: ${updated}件`);
+        } catch (error) {
+          showBackupStatus("JSONの読み込みに失敗しました。バックアップファイルの形式を確認してください。", "error");
+        } finally {
+          importJsonInputEl.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function exportCsv() {
+      const records = loadRecords();
+      const headers = ["日付", "テーマ", "スプレッド", "カード", "解釈メモ", "後日の振り返り", "作成日時", "更新日時"];
+      const rows = records.map(record => {
+        const cardsText = (record.cards || [])
+          .map(card => `${card.position}: ${card.card} ${card.orientation}`)
+          .join(" / ");
+        return [record.date, record.theme, record.spread, cardsText, record.memo, record.result, record.createdAt, record.updatedAt];
+      });
+      const csv = [headers, ...rows]
+        .map(row => row.map(value => `"${String(value || "").replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      downloadTextFile(`tarot-records-${todayString()}.csv`, "\uFEFF" + csv, "text/csv;charset=utf-8");
+      showBackupStatus(`CSVを書き出しました。記録件数: ${records.length}件`);
+    }
+
+    function registerServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch(error => {
+            console.info("Service Worker registration failed:", error);
+          });
+        });
+      }
+    }
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installAppBtnEl.style.display = "inline-flex";
+    });
+
+    installAppBtnEl.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installAppBtnEl.style.display = "none";
+    });
+
+    spreadEl.addEventListener("change", renderCardInputs);
+    saveBtnEl.addEventListener("click", saveRecord);
+    cancelEditBtnEl.addEventListener("click", resetForm);
+    document.getElementById("clearFormBtn").addEventListener("click", resetForm);
+    searchEl.addEventListener("input", renderRecords);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    importJsonInputEl.addEventListener("change", importJson);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+    document.getElementById("deleteAllBtn").addEventListener("click", () => {
+      if (confirm("すべての記録を削除しますか？この操作は元に戻せません。")) {
+        saveRecords([]);
+        renderRecords();
+      }
+    });
+
+    registerServiceWorker();
+    resetForm();
+    renderRecords();
+  </script>
+</body>
+</html>
